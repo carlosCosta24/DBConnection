@@ -46,13 +46,13 @@ namespace DBConnection
             }
         }
         //Prameterized Query
-        static void GetPorscheCars(string CarName)
+        static void GetCarsWihtName(string CarName)
         {
             SqlConnection Connection = new SqlConnection(ConnectionString);
-            string Query = "select top 5 Vehicle_Display_Name, Engine_CC, Model from CarsDataBase" +
-                " where Vehicle_Display_Name like @CarName;";
+            string Query = "select top 50 Vehicle_Display_Name, Engine_CC, Model from CarsDataBase" +
+                " where Vehicle_Display_Name like '%' + @CarName + '%';";
             SqlCommand Command = new SqlCommand(Query, Connection);
-            Command.Parameters.AddWithValue("@CarName", "%" + CarName + "%");
+            Command.Parameters.AddWithValue("@CarName", CarName);
             try
             {
                 Connection.Open();
@@ -90,7 +90,7 @@ namespace DBConnection
         static void Main(string[] args)
         {
             //PrintCarsDetails();
-            GetPorscheCars("Porsche%");
+            GetCarsWihtName("Su");
 
             Console.ReadKey();  
         }
