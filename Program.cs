@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 
 namespace DBConnection
 {
@@ -86,11 +87,46 @@ namespace DBConnection
 
             }
         }
+        // use ExecuteScalar
+        static string GetCarName(int MakeID)
+        {
+            string Name = "";
+            SqlConnection Connection = new SqlConnection(ConnectionString);
+            string Query = "select Vehicle_Display_Name from CarsDataBase where MakeID = @MakeID;";
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@MakeID", MakeID);
+            try
+            {
+                Connection.Open();
+
+                object Result = Command.ExecuteScalar();
+
+                if (Result != null)
+                {
+                    Name = Result.ToString();
+                }
+                else {
+                    Name = "Not Found";
+                
+                }
+                Connection.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                Connection.Close();
+
+            }
+            return Name;
+        }
+
 
         static void Main(string[] args)
         {
             //PrintCarsDetails();
-            GetCarsWihtName("Su");
+            //GetCarsWihtName("Su");
+            Console.WriteLine(GetCarName(10));
 
             Console.ReadKey();  
         }
