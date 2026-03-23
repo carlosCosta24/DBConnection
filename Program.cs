@@ -14,20 +14,20 @@ namespace DBConnection
         static string ConnectionString = "Server=.; Database=HR_Database; User Id=sa; Password=123456";
         public struct stEmployee 
         {
-            public int ID;
-            public string FirstName;
-            public string LastName;
-            public string   Gender;
-            public DateTime DateOfBrith;
-            public int    CountryID;
-            public int    DepartmentID;
-            public DateTime HireDate;
-            public DateTime ExitDate;
-            public decimal  Salary;
-            public float  BounsPer;
+            public int ID { get; set; }
+            public string FirstName { get; set; }
+            public string LastName{ get; set; }
+            public string Gender{ get; set; }
+            public DateTime DateOfBirth{ get; set; }
+            public int CountryID{ get; set; }
+            public int DepartmentID{ get; set; }
+            public DateTime HireDate{ get; set; }
+            public DateTime? ExitDate{ get; set; }
+            public decimal Salary{ get; set; }
+            public decimal BonusPerc{ get; set; }
 
 
-        
+
         }
         //find single employee
         static bool FindEmployeeByID(int EmployeeID, ref stEmployee Employee) { 
@@ -47,13 +47,15 @@ namespace DBConnection
                     Employee.FirstName = (string)Reader["FirstName"];
                     Employee.LastName = (string)Reader["LastName"];
                     Employee.Gender = (string)Reader["Gendor"];
-                    Employee.DateOfBrith = (DateTime)Reader["DateOfBirth"];
+                    Employee.DateOfBirth = (DateTime)Reader["DateOfBirth"];
                     Employee.CountryID = (int)Reader["CountryID"];
                     Employee.DepartmentID = (int)Reader["DepartmentID"];
                     Employee.HireDate = (DateTime)Reader["HireDate"];
-                    Employee.ExitDate = (DateTime)Reader["ExitDate"];
+                    Employee.ExitDate = Reader["ExitDate"] == DBNull.Value
+                        ? (DateTime?)null
+                        : (DateTime)Reader["ExitDate"];
                     Employee.Salary = (decimal)Reader["MonthlySalary"];
-                    Employee.BounsPer = (float)Reader["BonusPerc"];
+                    Employee.BonusPerc = Math.Round(Convert.ToDecimal(Reader["BonusPerc"]),2);
 
                 }
                 else { 
@@ -147,6 +149,52 @@ namespace DBConnection
             }
         }
         // use ExecuteScalar
+
+        //Insert into DataBase
+
+        static void AddEmployee(stEmployee Employee) {
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            string Query = @"insert into Employees 
+            (FirstName, LastName, Gendor, DateOfBirth, CountryID, DepartmentID, HireDate, ExitDate, MonthlySalary, BonusPerc)
+             values(@FirstName, @LastName, @Gendor, @DateOfBirth, @CountryID, @DepartmentID, 
+             @HireDate, @ExitDate, @MonthlySalary, @BonusPerc)";
+
+            SqlCommand Command = new SqlCommand(Query, connection);
+
+            Command.Parameters.AddWithValue("@FirstName", Employee.FirstName);
+            Command.Parameters.AddWithValue("@LastName", Employee.LastName);
+            Command.Parameters.AddWithValue("@Gendor", Employee.Gender);
+            Command.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+            Command.Parameters.AddWithValue("@CountryID", Employee.CountryID);
+            Command.Parameters.AddWithValue("@DepartmentID", Employee.DepartmentID);
+            Command.Parameters.AddWithValue("@HireDate", Employee.HireDate);
+            Command.Parameters.AddWithValue("@ExitDate", Employee.ExitDate ?? (object)DBNull.Value);
+            Command.Parameters.AddWithValue("@MonthlySalary", Employee.Salary);
+            Command.Parameters.AddWithValue("@BonusPerc", Employee.BonusPerc);
+
+            try
+            {
+
+                connection.Open();
+                int RowsAffected = Command.ExecuteNonQuery();
+                if (RowsAffected > 0)
+                {
+                    Console.WriteLine("Added Successfuly");
+                }
+                else
+                {
+                    Console.WriteLine("Error whiel Adding");
+                }
+
+            }
+            catch (Exception E) { 
+                Console.WriteLine(E.Message);
+            }
+            connection.Close();
+
+
+
+        }
         static string GetCarName(int MakeID)
         {
             string Name = "";
@@ -178,28 +226,44 @@ namespace DBConnection
 
             }
             return Name;
-        }
-
-
-        static void Main(string[] args)
+        }    
+                                                    
+                                                    
+        static void Main(string[] args)             
         {
-            stEmployee Employee = new stEmployee();
-            if (FindEmployeeByID(300, ref Employee))
+             stEmployee Carlos = new stEmployee();
+            /*stEmployee Employee = new stEmployee {
+
+                ID = 1285,
+                FirstName = "Carlos",
+                LastName = "Costa",
+                Gender = "M",
+                DateOfBirth = new DateTime(1998,7,8),
+                CountryID = 2,
+                DepartmentID = 1,
+                HireDate = new DateTime(2026,8,15),
+                ExitDate = null,
+                Salary = 10000,
+                BonusPerc = 0.35f,
+            };*/
+            //AddEmployee(Employee);
+            if (FindEmployeeByID(1285, ref Carlos))
             {
 
-                Console.WriteLine($"\nEmployeeID: {Employee.ID}");
-                Console.WriteLine($"FirstName: {Employee.FirstName}");
-                Console.WriteLine($"LastName: {Employee.LastName}");
-                Console.WriteLine($"Gender: {Employee.Gender}");
-                Console.WriteLine($"Date of brith: {Employee.DateOfBrith}");
-                Console.WriteLine($"Contry ID: {Employee.CountryID}");
-                Console.WriteLine($"Department ID: {Employee.DepartmentID}");
-                Console.WriteLine($"Hire Date: {Employee.HireDate}");
-                Console.WriteLine($"Salary: {Employee.Salary}");
-                Console.WriteLine($"Bouns Rate: {Employee.BounsPer}");
-                Console.WriteLine($"Exist Date: {Employee.ExitDate}");
+                Console.WriteLine($"\nEmployeeID: {Carlos.ID}");
+                Console.WriteLine($"FirstName: {Carlos.FirstName}");
+                Console.WriteLine($"LastName: {Carlos.LastName}");
+                Console.WriteLine($"Gender: {Carlos.Gender}");
+                Console.WriteLine($"Date of brith: {Carlos.DateOfBirth}");
+                Console.WriteLine($"Contry ID: {Carlos.CountryID}");
+                Console.WriteLine($"Department ID: {Carlos.DepartmentID}");
+                Console.WriteLine($"Hire Date: {Carlos.HireDate}");
+                Console.WriteLine(Carlos.ExitDate == null? "ExiteDate: Still working" : $"ExiteDate: {Carlos.ExitDate}" );
+                Console.WriteLine($"Salary: {Carlos.Salary}");
+                Console.WriteLine($"Bouns Rate: {Carlos.BonusPerc}");
             }
-            else { 
+            else {
+                Console.WriteLine("Employee not found");
             
             }
             //PrintCarsDetails();
