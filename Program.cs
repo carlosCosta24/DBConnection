@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
-using System.Runtime.InteropServices;
 using System.Web;
+using static DBConnection.Program;
 
 namespace DBConnection
 {
@@ -226,12 +227,55 @@ namespace DBConnection
 
             }
             return Name;
-        }    
-                                                    
-                                                    
+        }
+        //Get the Id After adding to DB
+        static void AddEmployeeAndGetID(stEmployee Employee)
+        {
+
+            SqlConnection connection = new SqlConnection(ConnectionString);
+
+            string Query = @"insert into Employees 
+            (FirstName, LastName, Gendor, DateOfBirth, CountryID, DepartmentID, HireDate, ExitDate, MonthlySalary, BonusPerc)
+             values(@FirstName, @LastName, @Gendor, @DateOfBirth, @CountryID, @DepartmentID, 
+             @HireDate, @ExitDate, @MonthlySalary, @BonusPerc); 
+             select scope_identity();";
+
+            SqlCommand Command = new SqlCommand(Query, connection);
+
+                Command.Parameters.AddWithValue("@FirstName", Employee.FirstName);
+                Command.Parameters.AddWithValue("@LastName", Employee.LastName);
+                Command.Parameters.AddWithValue("@Gendor", Employee.Gender);
+                Command.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+                Command.Parameters.AddWithValue("@CountryID", Employee.CountryID);
+                Command.Parameters.AddWithValue("@DepartmentID", Employee.DepartmentID);
+                Command.Parameters.AddWithValue("@HireDate", Employee.HireDate);
+                Command.Parameters.AddWithValue("@ExitDate", Employee.ExitDate ?? (object)DBNull.Value);
+                Command.Parameters.AddWithValue("@MonthlySalary", Employee.Salary);
+                Command.Parameters.AddWithValue("@BonusPerc", Employee.BonusPerc);
+            try {
+                connection.Open();
+                object Result = Command.ExecuteScalar();
+
+                if (Result != null && int.TryParse(Result.ToString(), out int ProcessID))
+                {
+                    Console.WriteLine($"Add succfully, ID: {ProcessID}");
+                }
+                else {
+                    Console.WriteLine("Failed to insert");
+                }
+                connection.Close();
+
+            
+            
+            } catch (Exception E) {
+                Console.WriteLine("Error: " + E.Message);
+                connection.Close( );
+            }
+
+        }
         static void Main(string[] args)             
         {
-             stEmployee Carlos = new stEmployee();
+            //stEmployee Carlos = new stEmployee();
             /*stEmployee Employee = new stEmployee {
 
                 ID = 1285,
@@ -247,7 +291,7 @@ namespace DBConnection
                 BonusPerc = 0.35f,
             };*/
             //AddEmployee(Employee);
-            if (FindEmployeeByID(1285, ref Carlos))
+            /*if (FindEmployeeByID(1285, ref Carlos))
             {
 
                 Console.WriteLine($"\nEmployeeID: {Carlos.ID}");
@@ -265,11 +309,26 @@ namespace DBConnection
             else {
                 Console.WriteLine("Employee not found");
             
-            }
+            }*/
             //PrintCarsDetails();
             //GetCarsWihtName("Su");
             //Console.WriteLine(GetCarName(10));
+            stEmployee Ricardo = new stEmployee
+            {
+                ID = 1286,
+                FirstName = "Ricardo",
+                LastName = "Costa",
+                Gender = "M",
+                DateOfBirth = new DateTime(1988, 7, 8),
+                CountryID = 2,
+                DepartmentID = 1,
+                HireDate = new DateTime(2026, 8, 15),
+                ExitDate = null,
+                Salary = 10000,
+                BonusPerc = (decimal)0.35f,
 
+            };
+            AddEmployeeAndGetID(Ricardo);
             Console.ReadKey();  
         }
     }
