@@ -330,6 +330,35 @@ namespace DBConnection
             }
 
         }
+
+        //Delete Employee
+        static void DeleteEmployee(int ID) { 
+            
+
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            string Query = @"delete from Employees where ID = @ID";
+            SqlCommand Command = new SqlCommand(Query, connection);
+            Command.Parameters.AddWithValue("@ID", ID);
+            try { 
+                
+                connection.Open();
+                int RowsAffected = Command.ExecuteNonQuery();
+                if (RowsAffected > 0)
+                {
+                    Console.WriteLine("Deleted successfully");
+                }
+                else {
+                    Console.WriteLine("Failed to delete");
+                }
+                connection.Close();
+            
+            } catch(Exception E) {
+                connection.Close();
+                Console.WriteLine("Error: " + E.Message);
+
+            }
+        
+        }
         static void Main(string[] args)             
         {
             //stEmployee Carlos = new stEmployee();
@@ -387,21 +416,23 @@ namespace DBConnection
             };
             AddEmployeeAndGetID(Ricardo);*/
 
-            stEmployee Aloha = new stEmployee
-            {
-                FirstName = "Aloha",
-                LastName = "Costa",
-                Gender = "F",
-                DateOfBirth = new DateTime(2001, 7, 8),
-                CountryID = 2,
-                DepartmentID = 7,
-                HireDate = new DateTime(2020, 8, 15),
-                ExitDate = null,
-                Salary = 1000,
-                BonusPerc = (decimal)0.25f,
+            /* stEmployee Aloha = new stEmployee
+             {
+                 FirstName = "Aloha",
+                 LastName = "Costa",
+                 Gender = "F",
+                 DateOfBirth = new DateTime(2001, 7, 8),
+                 CountryID = 2,
+                 DepartmentID = 7,
+                 HireDate = new DateTime(2020, 8, 15),
+                 ExitDate = null,
+                 Salary = 1000,
+                 BonusPerc = (decimal)0.25f,
 
-            };
-            UpdateEmployee(500, Aloha);
+             };
+             UpdateEmployee(500, Aloha);*/
+            DeleteEmployee(1);
+           
             Console.ReadKey();  
         }
     }
