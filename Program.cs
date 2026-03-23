@@ -273,6 +273,63 @@ namespace DBConnection
             }
 
         }
+        //Update Employee
+        static void UpdateEmployee(int ID, stEmployee Employee) { 
+        
+            SqlConnection connection = new SqlConnection(ConnectionString);
+
+            string Query = @"update Employees set 
+                FirstName = @FirstName, 
+                LastName = @LastName, 
+                Gendor = @Gendor, 
+                DateOfBirth = @DateOfBirth, 
+                CountryID = @CountryID, 
+                DepartmentID = @DepartmentID, 
+                HireDate = @HireDate, 
+                ExitDate = @ExitDate, 
+                MonthlySalary = @MonthlySalary, 
+                BonusPerc = @BonusPerc 
+                where ID = @ID ";
+
+            SqlCommand Command = new SqlCommand(Query, connection);
+            Command.Parameters.AddWithValue("@ID", ID);
+            Command.Parameters.AddWithValue("@FirstName", Employee.FirstName);
+            Command.Parameters.AddWithValue("@LastName", Employee.LastName);
+            Command.Parameters.AddWithValue("@Gendor", Employee.Gender);
+            Command.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+            Command.Parameters.AddWithValue("@CountryID", Employee.CountryID);
+            Command.Parameters.AddWithValue("@DepartmentID", Employee.DepartmentID);
+            Command.Parameters.AddWithValue("@HireDate", Employee.HireDate);
+            Command.Parameters.AddWithValue("@ExitDate", Employee.ExitDate ?? (object)DBNull.Value);
+            Command.Parameters.AddWithValue("@MonthlySalary", Employee.Salary);
+            Command.Parameters.AddWithValue("@BonusPerc", Employee.BonusPerc);
+
+            try {
+                connection.Open();
+                int RowsAffected = Command.ExecuteNonQuery();
+                if (RowsAffected > 0)
+                {
+                    Console.WriteLine("Updated Successfully");
+
+                }
+                else
+                {
+                    Console.WriteLine("Failed to Update");
+
+                }
+
+                connection.Close();
+
+
+
+
+            } catch (Exception E) { 
+                
+                connection.Close();
+                Console.WriteLine(E.Message);
+            }
+
+        }
         static void Main(string[] args)             
         {
             //stEmployee Carlos = new stEmployee();
@@ -313,7 +370,7 @@ namespace DBConnection
             //PrintCarsDetails();
             //GetCarsWihtName("Su");
             //Console.WriteLine(GetCarName(10));
-            stEmployee Ricardo = new stEmployee
+            /*stEmployee Ricardo = new stEmployee
             {
                 ID = 1286,
                 FirstName = "Ricardo",
@@ -328,7 +385,23 @@ namespace DBConnection
                 BonusPerc = (decimal)0.35f,
 
             };
-            AddEmployeeAndGetID(Ricardo);
+            AddEmployeeAndGetID(Ricardo);*/
+
+            stEmployee Aloha = new stEmployee
+            {
+                FirstName = "Aloha",
+                LastName = "Costa",
+                Gender = "F",
+                DateOfBirth = new DateTime(2001, 7, 8),
+                CountryID = 2,
+                DepartmentID = 7,
+                HireDate = new DateTime(2020, 8, 15),
+                ExitDate = null,
+                Salary = 1000,
+                BonusPerc = (decimal)0.25f,
+
+            };
+            UpdateEmployee(500, Aloha);
             Console.ReadKey();  
         }
     }
